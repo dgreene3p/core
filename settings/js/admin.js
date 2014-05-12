@@ -31,6 +31,10 @@ $(document).ready(function(){
 		OC.AppConfig.setValue('core', $(this).attr('name'), value);
 	});
 
+	$('#allowLinks').change(function() {
+		$("#publicLinkSettings").toggleClass('hidden', !this.checked);
+	});
+
 	$('#security').change(function(){
 		$.post(OC.filePath('settings','ajax','setsecurity.php'), { enforceHTTPS: $('#forcessl').val() },function(){} );
 	});

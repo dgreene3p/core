@@ -588,6 +588,7 @@ class Share extends \OC\Share\Constants {
 			$shareWith['users'] = array_diff(\OC_Group::usersInGroup($group), array($uidOwner));
 		} else if ($shareType === self::SHARE_TYPE_LINK) {
 			if (\OC_Appconfig::getValue('core', 'shareapi_allow_links', 'yes') == 'yes') {
+
 				// when updating a link share
 				if ($checkExists = self::getItems($itemType, $itemSource, self::SHARE_TYPE_LINK, null,
 					$uidOwner, self::FORMAT_NONE, null, 1)) {
@@ -599,7 +600,7 @@ class Share extends \OC\Share\Constants {
 				}
 
 				// Generate hash of password - same method as user passwords
-				if (isset($shareWith)) {
+				if (!empty($shareWith)) {
 					$forcePortable = (CRYPT_BLOWFISH != 1);
 					$hasher = new \PasswordHash(8, $forcePortable);
 					$shareWith = $hasher->HashPassword($shareWith.\OC_Config::getValue('passwordsalt', ''));
@@ -609,6 +610,12 @@ class Share extends \OC\Share\Constants {
 					if ($checkExists && (int)$permissions !== (int)$oldPermissions) {
 						$shareWith = $checkExists['share_with'];
 					}
+				}
+
+				if (\OC_Appconfig::getValue('core', 'shareapi_enforce_link_password', 'no') === 'yes' && empty($shareWith)) {
+					$message = 'Only password protected public links are allowed';
+					\OC_Log::write('OCP\Share', $message, \OC_Log::WARN);
+					throw new \Exception($message);
 				}
 
 				// Generate token

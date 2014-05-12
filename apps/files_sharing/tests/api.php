@@ -113,10 +113,66 @@ class Test_Files_Sharing_Api extends Test_Files_Sharing_Base {
 		$fileinfo = $this->view->getFileInfo($this->folder);
 
 		\OCP\Share::unshare('folder', $fileinfo['fileid'], \OCP\Share::SHARE_TYPE_LINK, null);
-
-
-
 	}
+
+	function testEnfoceLinkPassword() {
+
+		\OC_Appconfig::setValue('core', 'shareapi_enforce_link_password', 'yes');
+
+		// don't allow to share link without a password
+		$_POST['path'] = $this->folder;
+		$_POST['shareType'] = \OCP\Share::SHARE_TYPE_LINK;
+
+
+		$result = Share\Api::createShare(array());
+		$meta = $result->getMeta();
+		$this->assertSame('Only password protected public links are allowed' ,$meta['message']);
+
+
+		// don't allow to share link without a empty password
+		$_POST['path'] = $this->folder;
+		$_POST['shareType'] = \OCP\Share::SHARE_TYPE_LINK;
+		$_POST['password'] = '';
+
+		$result = Share\Api::createShare(array());
+		$meta = $result->getMeta();
+		$this->assertSame('Only password protected public links are allowed' ,$meta['message']);
+
+		// share with password should succeed
+		$_POST['path'] = $this->folder;
+		$_POST['shareType'] = \OCP\Share::SHARE_TYPE_LINK;
+		$_POST['password'] = 'foo';
+
+		$result = Share\Api::createShare(array());
+		$this->assertTrue($result->succeeded());
+
+		$data = $result->getData();
+
+		// setting new password should succeed
+		$params = array();
+		$params['id'] = $data['id'];
+		$params['_put'] = array();
+		$params['_put']['password'] = 'bar';
+
+		$result = Share\Api::updateShare($params);
+		$this->assertTrue($result->succeeded());
+
+		// removing password should fail
+		$params = array();
+		$params['id'] = $data['id'];
+		$params['_put'] = array();
+		$params['_put']['password'] = '';
+
+		$result = Share\Api::updateShare($params);
+		$meta = $result->getMeta();
+		$this->assertSame('Only password protected public links are allowed' ,$meta['message']);
+
+		// cleanup
+		$fileinfo = $this->view->getFileInfo($this->folder);
+		\OCP\Share::unshare('folder', $fileinfo['fileid'], \OCP\Share::SHARE_TYPE_LINK, null);
+		\OC_Appconfig::setValue('core', 'shareapi_enforce_link_password', 'no');
+	}
+
 
 	/**
 	 * @medium
