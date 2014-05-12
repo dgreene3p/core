@@ -92,6 +92,13 @@
 		},
 
 		/**
+		 * Returns whether a given item exists
+		 */
+		itemExists: function(itemId) {
+			return this.$el.find('li[data-id=' + itemId + ']').length;
+		},
+
+		/**
 		 * Event handler for when clicking on an item.
 		 */
 		_onClickItem: function(ev) {

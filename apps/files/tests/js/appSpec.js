@@ -26,6 +26,7 @@ describe('OCA.Files.App tests', function() {
 
 	beforeEach(function() {
 		$('#testArea').append(
+			'<div id="content" class="app-files">' +
 			'<div id="app-navigation">' +
 			'<ul><li data-id="files"><a>Files</a></li>' +
 			'<li data-id="other"><a>Other</a></li>' +
@@ -34,6 +35,7 @@ describe('OCA.Files.App tests', function() {
 			'<div id="app-content-files" class="hidden">' +
 			'</div>' +
 			'<div id="app-content-other" class="hidden">' +
+			'</div>' +
 			'</div>' +
 			'</div>' +
 			'</div>'
@@ -123,6 +125,12 @@ describe('OCA.Files.App tests', function() {
 				expect(handler.getCall(0).args[0].view).toEqual('files');
 				expect(handler.getCall(0).args[0].dir).toEqual('/');
 			});
+			it('activates files app if invalid view is passed', function() {
+				App._onPopState({view: 'invalid', dir: '/somedir'});
+
+				expect(App.navigation.getActiveItem()).toEqual('files');
+				expect($('#app-content-files').hasClass('hidden')).toEqual(false);
+			});
 		});
 		describe('navigation', function() {
 			it('switches the navigation item and panel visibility when onpopstate', function() {
@@ -163,6 +171,22 @@ describe('OCA.Files.App tests', function() {
 				expect(handler.calledOnce).toEqual(true);
 				expect(handler.getCall(0).args[0].view).toEqual('other');
 				expect(handler.getCall(0).args[0].dir).toEqual('/');
+			});
+		});
+		describe('viewer mode', function() {
+			it('toggles the sidebar when viewer mode is enabled', function() {
+				$('#app-content-files').trigger(
+					new $.Event('changeViewerMode', {viewerModeEnabled: true}
+				));
+				expect($('#app-navigation').hasClass('hidden')).toEqual(true);
+				expect($('.app-files').hasClass('viewer-mode no-sidebar')).toEqual(true);
+
+				$('#app-content-files').trigger(
+					new $.Event('changeViewerMode', {viewerModeEnabled: false}
+				));
+
+				expect($('#app-navigation').hasClass('hidden')).toEqual(false);
+				expect($('.app-files').hasClass('viewer-mode no-sidebar')).toEqual(false);
 			});
 		});
 	});

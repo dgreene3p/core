@@ -17,7 +17,11 @@ OCA.Trashbin.App = {
 			return;
 		}
 		this._initialized = true;
-		this.fileList = new OCA.Trashbin.FileList($el);
+		this.fileList = new OCA.Trashbin.FileList(
+			$('#app-content-trashbin'), {
+				scrollContainer: $('#app-content')
+			}
+		);
 		this.registerFileActions(this.fileList);
 	},
 

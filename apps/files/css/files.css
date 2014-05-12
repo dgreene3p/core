@@ -3,10 +3,11 @@
  See the COPYING-README file. */
 
 /* FILE MENU */
-.actions { padding:5px; height:32px; width: 100%; }
+.actions { padding:5px; height:32px; display: inline-block; }
 .actions input, .actions button, .actions .button { margin:0; float:left; }
 .actions .button a { color: #555; }
 .actions .button a:hover, .actions .button a:active { color: #333; }
+.actions.hidden { display: none; }
 
 #new {
 	z-index: 1010;
@@ -70,10 +71,12 @@
 
 /* FILE TABLE */
 
-.app-files #filestable {
+#filestable {
 	position: relative;
+	top: 44px;
 	width: 100%;
 }
+
 /* make sure there's enough room for the file actions */
 #body-user #filestable {
 	min-width: 688px; /* 768 (mobile break) - 80 (nav width) */
@@ -83,14 +86,26 @@
 }
 
 #filestable tbody tr { background-color:#fff; height:51px; }
+
+.app-files #app-content {
+	position: relative;
+}
+
 /**
  * Override global #controls styles
  * to be more flexible / relative
  */
 .app-files #controls {
-	position: static;
-	left: auto;
-	top: auto;
+	left: 310px;
+	position: fixed;
+}
+
+#body-user .app-files #controls {
+	padding-left: 0px;
+}
+
+.app-files.no-sidebar #controls {
+	left: 0px;
 }
 
 .app-files #app-navigation {
@@ -205,9 +220,7 @@ table.multiselect thead {
 	z-index: 10;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	left: 0;
-	padding-left: 80px;
-	width: 100%;
+	left: 310px;
 }
 
 table.multiselect thead th {
@@ -294,7 +307,7 @@ table td.filename form { font-size:14px; margin-left:48px; margin-right:48px; }
 
 /* Use label to have bigger clickable size for checkbox */
 #fileList tr td.filename>input[type="checkbox"] + label,
-#select_all + label {
+.select-all + label {
 	height: 50px;
 	position: absolute;
 	width: 50px;
@@ -308,10 +321,10 @@ table td.filename form { font-size:14px; margin-left:48px; margin-right:48px; }
 #fileList tr td.filename>input[type="checkbox"] + label {
 	left: 0;
 }
-#select_all + label {
+.select-all + label {
 	top: 0;
 }
-#select_all {
+.select-all {
 	position: absolute;
 	top: 18px;
 	left: 18px;
