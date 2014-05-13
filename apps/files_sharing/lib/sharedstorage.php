@@ -110,6 +110,11 @@ class Shared extends \OC\Files\Storage\Common {
 		if (pathinfo($target, PATHINFO_EXTENSION) === 'part') {
 			$permissions |= \OCP\PERMISSION_DELETE;
 		}
+
+		if (\OC_Util::sharingDisabledForUser()) {
+			$permission &= ~\OCP\PERMISSION_SHARE;
+		}
+
 		return $permissions;
 	}
 
@@ -200,6 +205,9 @@ class Shared extends \OC\Files\Storage\Common {
 	}
 
 	public function isSharable($path) {
+		if ($this->userExcludedFromSharing()) {
+			return false;
+		}
 		return ($this->getPermissions($path) & \OCP\PERMISSION_SHARE);
 	}
 

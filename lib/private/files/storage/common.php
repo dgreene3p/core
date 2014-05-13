@@ -81,6 +81,10 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	}
 
 	public function isSharable($path) {
+		if (\OC_Util::sharingDisabledForUser()) {
+			return false;
+		}
+
 		return $this->isReadable($path);
 	}
 

@@ -33,6 +33,20 @@ $(document).ready(function() {
 				return ' ' + t('files_sharing', 'Shared by {owner}', {owner: $owner});
 			});
 
+
+			// if no share action exists because the admin disabled sharing for this user
+			// we create a share notification action to inform the user about files
+			// shared with him.
+			var allShared = $('#fileList').find('[data-share-owner]');
+			var shareNotification = '<a class="action action-share-notification permanent" data-action="Share-Notification" href="#" original-title="">' +
+					' <img class="svg" src="/oc/core/img/actions/share.svg"></img>';
+
+			$(allShared).find('.fileactions').append(function() {
+				var owner = $(this).closest('tr').attr('data-share-owner');
+				var shareBy = t('files_sharing', 'Shared by {owner}', {owner: owner});
+				return shareNotification + '<span> ' + shareBy + '</span></span>';
+			});
+
 			if (!sharesLoaded){
 				OC.Share.loadIcons('file');
 				// assume that we got all shares, so switching directories
@@ -44,7 +58,7 @@ $(document).ready(function() {
 			}
 		});
 
-		FileActions.register('all', 'Share', OC.PERMISSION_READ, OC.imagePath('core', 'actions/share'), function(filename) {
+		FileActions.register('all', 'Share', OC.PERMISSION_SHARE, OC.imagePath('core', 'actions/share'), function(filename) {
 			var tr = FileList.findFileEl(filename);
 			var itemType = 'file';
 			if ($(tr).data('type') == 'dir') {

@@ -1,4 +1,43 @@
+var SharingGroupList = {
+	applyMultiplySelect: function(element) {
+		var checked = [];
+		if ($(element).hasClass('groupsselect')) {
+			if (element.data('userGroups')) {
+				checked = element.data('userGroups');
+			}
+			var checkHandeler = function(group) {
+					$.post(OC.filePath('settings', 'ajax', 'excludegroups.php'), {changedGroup: group, selectedGroups: JSON.stringify(checked)}, function() {});
+			};
+
+			var addGroup = function(select, group) {
+				$('select[multiple]').each(function(index, element) {
+					if ($(element).find('option[value="' + group + '"]').length === 0 && select.data('msid') !== $(element).data('msid')) {
+						$(element).append('<option value="' + escapeHTML(group) + '">' + escapeHTML(group) + '</option>');
+					}
+				});
+			};
+			var label = null;
+			element.multiSelect({
+				createCallback: addGroup,
+				createText: label,
+				selectedFirst: true,
+				checked: checked,
+				oncheck: checkHandeler,
+				onuncheck: checkHandeler,
+				minWidth: 100
+			});
+
+		}
+	}
+};
+
 $(document).ready(function(){
+
+	$('select[multiple]').each(function (index, element) {
+		SharingGroupList.applyMultiplySelect($(element));
+	});
+
+
 	$('#loglevel').change(function(){
 		$.post(OC.filePath('settings','ajax','setloglevel.php'), { level: $(this).val() },function(){
 			OC.Log.reload();
@@ -75,5 +114,9 @@ $(document).ready(function(){
 		$.post(OC.generateUrl('/settings/admin/mailtest'), post, function(data){
 			OC.msg.finishedAction('#sendtestmail_msg', data);
 		});
+	});
+
+	$('#shareapiExcludeGroups').change(function() {
+		$("#selectExcludedGroups").toggleClass('hidden', !this.checked);
 	});
 });
